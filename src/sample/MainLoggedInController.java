@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
@@ -16,7 +15,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -121,17 +119,13 @@ public class MainLoggedInController implements Initializable {
 			}
 			scanner.close();
 			noteList = new ArrayList<Note>();
-			System.out.println("The size of the notelist is" + noteList.size());
 			int count = 0;
 			
 			for (String noteString : inputText.split("~~")) {
 				if(noteString!=null && noteString!="" && noteString!=" " && noteString.split(":")[1]!=""){
-					System.out.println(noteString.split(":")[0]);
-					System.out.println(noteString.split(":")[1]);
 					checkANoteExists = true;
 					String string1 = noteString.split(":")[0];
 					String string2 = noteString.split(":")[1];
-	
 					Note note = new Note(string1, string2);
 					noteList.add(note);
 					Button button = new Button(note.getTitle());
@@ -145,12 +139,10 @@ public class MainLoggedInController implements Initializable {
 				}
 			}
 			footerLabel.setText("Welcome " + userNameTextField.getText());
-
 		}
 	}
 
 	public void noteDeleteClicked(ActionEvent event) throws IOException {
-		System.out.println("User clicked to delete a note...");
 
 		File inputFile = new File(txtFileName);
 		File tempFile = new File("myTempFile.txt");
@@ -173,7 +165,6 @@ public class MainLoggedInController implements Initializable {
 		while ((currentLine = reader.readLine()) != null) {
 			String trimmedCurrentLine = currentLine.trim();
 			if (trimmedCurrentLine == lineToRemove) {
-				System.out.println("Haha");
 			}
 			if (trimmedCurrentLine.equals(lineToRemove))
 				continue;
@@ -195,7 +186,6 @@ public class MainLoggedInController implements Initializable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	// When note is selected
@@ -211,8 +201,6 @@ public class MainLoggedInController implements Initializable {
 	    );;
 		this.currentNoteSelected = pressedButton;
 		isAnExistingNoteSelected = true;
-		System.out.println(
-				"You clicked the note called " + pressedButton.getText() + ", with an id of: " + pressedButton);
 
 		for (int i = 0; i < yourNotesArea.getChildren().size(); i++) {
 			if (pressedButton == yourNotesArea.getChildren().get(i)) {
@@ -236,7 +224,6 @@ public class MainLoggedInController implements Initializable {
 	}
 	
 	public void logOutButtonClicked(ActionEvent event) throws IOException {
-		System.out.println("User logged out...");
 
 		Parent parent2 = FXMLLoader.load(getClass().getResource("sample.fxml"));
 		Stage window = (Stage) (((Node) event.getSource()).getScene().getWindow());
@@ -249,15 +236,12 @@ public class MainLoggedInController implements Initializable {
 	}
 
 	public void saveNoteLocally(ActionEvent event) throws Exception {
-		System.out.println("Saving Note Locally");
 		if (isAnExistingNoteSelected == false) {
 			File f = new File(txtFileName);
 			String title = titleNote.getText();
 			String body = noteBody.getText();
 
 			if (f.exists()) {
-				System.out.println("A note text file already exists");
-				System.out.println("You want to creae a new note");
 				FileWriter fw = new FileWriter(txtFileName, true);
 				try {
 					fw.write(title + ":" + body + "~~" + "\n");
@@ -281,7 +265,6 @@ public class MainLoggedInController implements Initializable {
 
 
 			} else {
-				System.out.println("Note text file does not yet exist");
 				BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
 				out.write(title + ":" + body + "~~");
 				out.close();
@@ -299,15 +282,11 @@ public class MainLoggedInController implements Initializable {
 		// The below code is executed when an archived note is selected for
 		// editing and save is pressed
 		else {
-			/////////////////////////////////////////////
-
 			File f = new File(txtFileName);
 			String title = titleNote.getText();
 			String body = noteBody.getText();
 
 			if (f.exists()) {
-				System.out.println("A note text file already exists");
-				System.out.println("You have selected a note and want to save your alterations");
 				FileWriter fw = new FileWriter(txtFileName, true);
 				try {
 					fw.write(title + ":" + body + "~~" + "\n");
@@ -318,8 +297,6 @@ public class MainLoggedInController implements Initializable {
 						fw.close();
 					}
 				}
-				//////////////////////////////////// DELETE
-				//////////////////////////////////// CODE//////////////////////////////////////////////
 
 				System.out.println("Deleting old version of edited note");
 
@@ -370,14 +347,11 @@ public class MainLoggedInController implements Initializable {
 					e.printStackTrace();
 				}
 
-				//////////////////////////////////// DELETE
-				//////////////////////////////////// CODE//////////////////////////////////////////////
-
 			} else {
 				System.out.println("Note text file does not exist so note cannot be edited");
 			}
 
-			/////////////////////////////////////////////
+
 		}
 	}
 
