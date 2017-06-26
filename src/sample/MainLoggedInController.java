@@ -228,7 +228,7 @@ public class MainLoggedInController implements Initializable {
 		Parent parent2 = FXMLLoader.load(getClass().getResource("sample.fxml"));
 		Stage window = (Stage) (((Node) event.getSource()).getScene().getWindow());
 		Scene loggedOutScene = new Scene(parent2, (window.getWidth() - 16), (window.getHeight() - 38));
-		loggedOutScene.getStylesheets().add("resources/css/test.css");
+		loggedOutScene.getStylesheets().add("resource/test.css");
 		window.setScene(loggedOutScene);
 		window.show();
 		resetTextFileForCurrentUser();

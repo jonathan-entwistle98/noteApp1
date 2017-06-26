@@ -87,7 +87,7 @@ public class LoggedOutController {
 			try {
 				Parent pane = loader.load();
 				Scene loggedInScene = new Scene(pane, scene.getWidth(), scene.getHeight());
-				loggedInScene.getStylesheets().add("resources/css/test.css");
+				loggedInScene.getStylesheets().add("resource/test.css");
 				Stage loggedInStage = (Stage) scene.getWindow();
 				loggedInStage.setScene(loggedInScene);
 				loggedInStage.show();

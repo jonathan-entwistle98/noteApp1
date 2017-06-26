@@ -13,7 +13,8 @@ public class Main extends Application {
 			Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
 			primaryStage.setTitle("Notes Application");
 			Scene scene = new Scene(root, 800, 500);
-			scene.getStylesheets().add("resources/css/test.css");
+			scene.getStylesheets().add("resource/test.css");
+			//scene.getStylesheets().add(getClass().getResource(name))
 
 			primaryStage.setScene(scene);
 			primaryStage.show();

@@ -1,1 +1,2 @@
 My First Note:This is the body of my first note.~~
+new note:new body of note~~
