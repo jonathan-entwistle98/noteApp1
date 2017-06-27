@@ -74,7 +74,7 @@ public class MainLoggedInController implements Initializable {
 
 	@FXML
 	private ScrollPane noteScrollPane;
-	
+
 	@FXML
 	private Button addNewNote;
 
@@ -85,10 +85,12 @@ public class MainLoggedInController implements Initializable {
 	private Button currentNoteSelected;
 
 	private Boolean isAnExistingNoteSelected = false;
-	
+
 	private boolean checkANoteExists = false;
-	
+
 	private String txtFileName;
+
+	private Button previousNoteButton;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -120,7 +122,7 @@ public class MainLoggedInController implements Initializable {
 			scanner.close();
 			noteList = new ArrayList<Note>();
 			int count = 0;
-			
+
 			for (String noteString : inputText.split("~~")) {
 				if(noteString!=null && noteString!="" && noteString!=" " && noteString.split(":")[1]!=""){
 					checkANoteExists = true;
@@ -132,7 +134,7 @@ public class MainLoggedInController implements Initializable {
 					button.setMaxWidth(Double.MAX_VALUE);
 					button.setId("noteSelectButton" + count);
 					button.getStyleClass().add("noteyButtons");
-	
+
 					button.setOnAction(this::noteArchiveSelected);
 					yourNotesArea.getChildren().add(button);
 					count++;
@@ -190,26 +192,49 @@ public class MainLoggedInController implements Initializable {
 
 	// When note is selected
 	public void noteArchiveSelected(ActionEvent event) {
-		Button pressedButton = (Button) event.getSource();
-		pressedButton.setStyle("-fx-background-color: #8da6fc;" 
-		 	+ "-fx-background-insets: 0,1,4,5;"
-		    + "-fx-background-radius: 9,8,5,4;"
-		    + "-fx-padding: 15 30 15 30;"
-		    + "-fx-font-size: 12px;"
-		    + "-fx-text-fill: #333333;"
-		    + "-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1)"
-	    );;
-		this.currentNoteSelected = pressedButton;
-		isAnExistingNoteSelected = true;
-
-		for (int i = 0; i < yourNotesArea.getChildren().size(); i++) {
-			if (pressedButton == yourNotesArea.getChildren().get(i)) {
-				titleNote.setText(noteList.get(i).getTitle());
-				noteBody.setText(noteList.get(i).getBody());
-			}
+		//This un-selects the previous pressed note button
+		if(currentNoteSelected!=null){
+			currentNoteSelected.setStyle(
+					"-fx-background-color: #f7f7f7;"
+							+ "-fx-background-insets: 0,1,4,5;"
+							+ "-fx-background-radius: 9,8,5,4;"
+							+ "-fx-padding: 15 30 15 30;"
+							+ "-fx-font-size: 12px;"
+							+ "-fx-text-fill: #333333;"
+							+ "-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);"
+					);
 		}
+
+		Button newPressedButton = (Button) event.getSource();
+		newPressedButton.setStyle("-fx-background-color: #8da6fc;" 
+				+ "-fx-background-insets: 0,1,4,5;"
+				+ "-fx-background-radius: 9,8,5,4;"
+				+ "-fx-padding: 15 30 15 30;"
+				+ "-fx-font-size: 12px;"
+				+ "-fx-text-fill: #333333;"
+				+ "-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1)"
+				);;
+				this.currentNoteSelected = newPressedButton;
+				isAnExistingNoteSelected = true;
+
+				for (int i = 0; i < yourNotesArea.getChildren().size(); i++) {
+					if (newPressedButton == yourNotesArea.getChildren().get(i)) {
+						titleNote.setText(noteList.get(i).getTitle());
+						noteBody.setText(noteList.get(i).getBody());
+					}
+				}
+				//		// These lines below redraw the screen, so the saved note
+				//		// appears
+				//		yourNotesArea.getChildren().clear();
+				//		try {
+				//			prepareNotesScreen();
+				//		} catch (Exception e) {
+				//			e.printStackTrace();
+				//		}
+
+				//		newPressedButton = previousNoteButton;
 	}
-	
+
 	// When the new note button is pressed
 	public void newNoteButtonClicked(ActionEvent event){
 		this.isAnExistingNoteSelected=false;
@@ -222,7 +247,7 @@ public class MainLoggedInController implements Initializable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void logOutButtonClicked(ActionEvent event) throws IOException {
 
 		Parent parent2 = FXMLLoader.load(getClass().getResource("sample.fxml"));
@@ -268,7 +293,7 @@ public class MainLoggedInController implements Initializable {
 				BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
 				out.write(title + ":" + body + "~~");
 				out.close();
-				
+
 				// These lines below redraw the screen, so the saved note
 				// appears
 				yourNotesArea.getChildren().clear();
@@ -298,8 +323,6 @@ public class MainLoggedInController implements Initializable {
 					}
 				}
 
-				System.out.println("Deleting old version of edited note");
-
 				File tempFile = new File("myTempFile.txt");
 
 				BufferedReader reader = new BufferedReader(new FileReader(f));
@@ -323,7 +346,6 @@ public class MainLoggedInController implements Initializable {
 					if (trimmedCurrentLine.equals(lineToRemove))
 						continue;
 					if (trimmedCurrentLine == lineToRemove) {
-						System.out.println("Haha");
 					}
 					writer.write(currentLine + System.getProperty("line.separator"));
 				}
@@ -358,12 +380,12 @@ public class MainLoggedInController implements Initializable {
 	public void setUserData(TextField userName) {
 		this.userNameTextField = userName;
 	}
-	
+
 	public void createTextFileForCurrentUser(){
 		//This won't work if two users have the same username
 		this.txtFileName = this.userNameTextField.getText() + ".txt";
 	}
-	
+
 	public void resetTextFileForCurrentUser(){
 		this.txtFileName = null;
 	}

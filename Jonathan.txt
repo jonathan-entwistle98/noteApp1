@@ -1,2 +1,3 @@
-My First Note:This is the body of my first note.~~
-new note:new body of note~~
+Third Title:Third Note~~
+Another title:Some text here~~
+A good example title:Some more cheeky text in the writing boxx~~
