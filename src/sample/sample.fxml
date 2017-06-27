@@ -36,7 +36,7 @@
    <bottom>
       <HBox fx:id="footerArea" BorderPane.alignment="CENTER">
          <children>
-            <Region maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="17.0" prefWidth="655.0" HBox.hgrow="ALWAYS" />
+            <Region maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="17.0" prefWidth="615.0" HBox.hgrow="ALWAYS" />
             <Label fx:id="footerText" text="This is the Footer." />
          </children>
          <padding>

@@ -101,7 +101,7 @@
    <bottom>
       <HBox fx:id="footerArea" prefHeight="21.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
-            <Region prefHeight="21.0" prefWidth="727.0" HBox.hgrow="ALWAYS" />
+            <Region prefHeight="21.0" prefWidth="614.0" HBox.hgrow="ALWAYS" />
             <Label fx:id="footerLabel" prefHeight="17.0" prefWidth="297.0" text="This is a footer" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
