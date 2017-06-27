@@ -96,7 +96,7 @@ public class MainLoggedInController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		try {
 			createTextFileForCurrentUser();
-			DigitalClock clock1 = new DigitalClock(); 
+			DigitalClock clock1 = new DigitalClock();
 			footerArea.getChildren().remove(footerLabel);
 			footerArea.getChildren().add(clock1);
 			prepareNotesScreen();
@@ -124,7 +124,7 @@ public class MainLoggedInController implements Initializable {
 			int count = 0;
 
 			for (String noteString : inputText.split("~~")) {
-				if(noteString!=null && noteString!="" && noteString!=" " && noteString.split(":")[1]!=""){
+				if (noteString != null && noteString != "" && noteString != " " && noteString.split(":")[1] != "") {
 					checkANoteExists = true;
 					String string1 = noteString.split(":")[0];
 					String string2 = noteString.split(":")[1];
@@ -192,52 +192,51 @@ public class MainLoggedInController implements Initializable {
 
 	// When note is selected
 	public void noteArchiveSelected(ActionEvent event) {
-		//This un-selects the previous pressed note button
-		if(currentNoteSelected!=null){
-			currentNoteSelected.setStyle(
-					"-fx-background-color: #f7f7f7;"
-							+ "-fx-background-insets: 0,1,4,5;"
-							+ "-fx-background-radius: 9,8,5,4;"
-							+ "-fx-padding: 15 30 15 30;"
-							+ "-fx-font-size: 12px;"
-							+ "-fx-text-fill: #333333;"
-							+ "-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);"
-					);
+		// This un-selects the previous pressed note button
+		// if(currentNoteSelected!=null){
+		// currentNoteSelected.setStyle(
+		// "-fx-background-color: #f7f7f7;"
+		// + "-fx-background-insets: 0,1,4,5;"
+		// + "-fx-background-radius: 9,8,5,4;"
+		// + "-fx-padding: 15 30 15 30;"
+		// + "-fx-font-size: 12px;"
+		// + "-fx-text-fill: #333333;"
+		// + "-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) ,
+		// 1, 0.0 , 0 , 1);"
+		// );
+		// }
+		if (currentNoteSelected != null) {
+			currentNoteSelected.getStyleClass().remove("noteyButtonSelect");
+			currentNoteSelected.getStyleClass().add("noteyButtonDeselect");
 		}
 
 		Button newPressedButton = (Button) event.getSource();
-		newPressedButton.setStyle("-fx-background-color: #8da6fc;" 
-				+ "-fx-background-insets: 0,1,4,5;"
-				+ "-fx-background-radius: 9,8,5,4;"
-				+ "-fx-padding: 15 30 15 30;"
-				+ "-fx-font-size: 12px;"
-				+ "-fx-text-fill: #333333;"
-				+ "-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1)"
-				);;
-				this.currentNoteSelected = newPressedButton;
-				isAnExistingNoteSelected = true;
+		newPressedButton.getStyleClass().add("noteyButtonSelect");
+		newPressedButton.getStyleClass().remove("noteyButtonDeselect");
 
-				for (int i = 0; i < yourNotesArea.getChildren().size(); i++) {
-					if (newPressedButton == yourNotesArea.getChildren().get(i)) {
-						titleNote.setText(noteList.get(i).getTitle());
-						noteBody.setText(noteList.get(i).getBody());
-					}
-				}
-				//		// These lines below redraw the screen, so the saved note
-				//		// appears
-				//		yourNotesArea.getChildren().clear();
-				//		try {
-				//			prepareNotesScreen();
-				//		} catch (Exception e) {
-				//			e.printStackTrace();
-				//		}
+		// newPressedButton.setStyle("-fx-background-color: #8da6fc;"
+		// + "-fx-background-insets: 0,1,4,5;"
+		// + "-fx-background-radius: 9,8,5,4;"
+		// + "-fx-padding: 15 30 15 30;"
+		// + "-fx-font-size: 12px;"
+		// + "-fx-text-fill: #333333;"
+		// + "-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) ,
+		// 1, 0.0 , 0 , 1)"
+		// );;
+		this.currentNoteSelected = newPressedButton;
+		isAnExistingNoteSelected = true;
 
-				//		newPressedButton = previousNoteButton;
+		for (int i = 0; i < yourNotesArea.getChildren().size(); i++) {
+			if (newPressedButton == yourNotesArea.getChildren().get(i)) {
+				titleNote.setText(noteList.get(i).getTitle());
+				noteBody.setText(noteList.get(i).getBody());
+			}
+		}
 	}
 
 	// When the new note button is pressed
-	public void newNoteButtonClicked(ActionEvent event){
-		this.isAnExistingNoteSelected=false;
+	public void newNoteButtonClicked(ActionEvent event) {
+		this.isAnExistingNoteSelected = false;
 		titleNote.clear();
 		noteBody.clear();
 		yourNotesArea.getChildren().clear();
@@ -286,8 +285,6 @@ public class MainLoggedInController implements Initializable {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-
-
 
 			} else {
 				BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
@@ -373,7 +370,6 @@ public class MainLoggedInController implements Initializable {
 				System.out.println("Note text file does not exist so note cannot be edited");
 			}
 
-
 		}
 	}
 
@@ -381,12 +377,12 @@ public class MainLoggedInController implements Initializable {
 		this.userNameTextField = userName;
 	}
 
-	public void createTextFileForCurrentUser(){
-		//This won't work if two users have the same username
+	public void createTextFileForCurrentUser() {
+		// This won't work if two users have the same username
 		this.txtFileName = this.userNameTextField.getText() + ".txt";
 	}
 
-	public void resetTextFileForCurrentUser(){
+	public void resetTextFileForCurrentUser() {
 		this.txtFileName = null;
 	}
 }

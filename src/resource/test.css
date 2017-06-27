@@ -102,6 +102,16 @@
 	
 }
 
+.noteyButtonDeselect{
+	-fx-background-color: #f7f7f7;
+}
+
+.noteyButtonSelect{
+	
+	-fx-background-color: #8da6fc;
+	
+}
+
 #footerArea{
 	-fx-background-color: grey;
 }
