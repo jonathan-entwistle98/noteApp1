@@ -134,10 +134,17 @@ public class MainLoggedInController implements Initializable {
 					button.setMaxWidth(Double.MAX_VALUE);
 					button.setId("noteSelectButton" + count);
 					button.getStyleClass().add("noteyButtons");
-
+					if(yourNotesArea.isVisible()==false){
+						yourNotesArea.setVisible(true);
+					}
 					button.setOnAction(this::noteArchiveSelected);
 					yourNotesArea.getChildren().add(button);
 					count++;
+				}
+				//If there are no notes
+				else{
+					if(yourNotesArea.isVisible())
+					yourNotesArea.setVisible(false);
 				}
 			}
 			footerLabel.setText("Welcome " + userNameTextField.getText());

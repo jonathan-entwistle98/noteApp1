@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -15,7 +16,7 @@ public class Main extends Application {
 			Scene scene = new Scene(root, 800, 500);
 			scene.getStylesheets().add("resource/test.css");
 			//scene.getStylesheets().add(getClass().getResource(name))
-
+			primaryStage.getIcons().add(new Image(this.getClass().getResourceAsStream("icon.png")));
 			primaryStage.setScene(scene);
 			primaryStage.show();
 	}

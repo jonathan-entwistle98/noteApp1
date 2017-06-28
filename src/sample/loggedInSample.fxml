@@ -54,7 +54,7 @@
             </Button>
             <ScrollPane fx:id="noteScrollPane" fitToWidth="true" maxHeight="1.7976931348623157E308" prefHeight="287.0" prefWidth="150.0" VBox.vgrow="ALWAYS">
                <content>
-                  <VBox fx:id="yourNotesArea" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" prefWidth="148.0" spacing="10.0" styleClass="ButtonClassStyle">
+                  <VBox fx:id="yourNotesArea" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" prefWidth="148.0" spacing="10.0" styleClass="ButtonClassStyle" visible="false">
                      <padding>
                         <Insets bottom="15.0" left="10.0" right="10.0" top="10.0" />
                      </padding>
