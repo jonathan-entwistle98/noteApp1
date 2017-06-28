@@ -1,2 +1,1 @@
-dasgsdfg:http://www.google.com~~
-:hello:hello~~
+{"Jonathan":[{"noteHeader":"dasgsdfg","noteBody":"https://www.google.com"},{"noteHeader":"keepo1","noteBody":"hellof"}]}

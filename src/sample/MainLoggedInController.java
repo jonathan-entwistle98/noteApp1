@@ -1,15 +1,21 @@
 package sample;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -86,12 +92,14 @@ public class MainLoggedInController implements Initializable {
 
 	private Boolean isAnExistingNoteSelected = false;
 
-	private boolean checkANoteExists = false;
-
 	private String txtFileName;
 
-	private Button previousNoteButton;
 
+	/**
+	 * Initialization class (like a constructor)
+	 * @param location
+	 * @param resources
+	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		try {
@@ -105,113 +113,105 @@ public class MainLoggedInController implements Initializable {
 		}
 	}
 
-	// Reads saveNoteFile.txt, saving it as a string. Then splits the string and
-	// saves the resultant strings in string1 and string2
-	// For each "~~"(each line in the txt file), creates a Note object using
-	// string1 and string2 and creates a button, adding the button
-	// to the NotesArea VBox
+
+	/**
+	 *Reads in JSON from the txt file. Creates a note object for each note element in the JSON.
+	 *Creates a new button for each note (getting this value from a JSon array of jsonobjects).
+	 * @throws Exception
+	 */
 	public void prepareNotesScreen() throws Exception {
 
 		File f = new File(txtFileName);
 		if (f.exists()) {
-			Scanner scanner = new Scanner(new FileReader(txtFileName));
-			String inputText = "";
-			while (scanner.hasNext()) {
-				inputText += scanner.nextLine();
-			}
-			scanner.close();
 			noteList = new ArrayList<Note>();
 			int count = 0;
 
-			for (String noteString : inputText.split("~~")) {
-				if (noteString != null && noteString != "" && noteString != " " && noteString.split(":")[1] != "") {
-					checkANoteExists = true;
-					String string1 = noteString.split(":")[0];
-					String string2 = noteString.split(":")[1];
-					Note note = new Note(string1, string2);
-					noteList.add(note);
-					Button button = new Button(note.getTitle());
-					button.setMaxWidth(Double.MAX_VALUE);
-					button.setId("noteSelectButton" + count);
-					button.getStyleClass().add("noteyButtons");
-					if(yourNotesArea.isVisible()==false){
-						yourNotesArea.setVisible(true);
+			// Reading from notes.json and printing to console
+			Scanner jsonScanner = new Scanner(new FileReader("Jonathan.txt"));
+			String jsonFile = "";
+			jsonFile += jsonScanner.nextLine();
+			jsonScanner.close();
+			// Read from noteString and create new notes, adding actionListener
+			// to a created button which is then added to the NotesArea
+			JsonParser parser = new JsonParser();
+			JsonElement element = parser.parse(jsonFile.toString());
+			if (element.isJsonObject()) {
+				JsonObject albums = element.getAsJsonObject();
+				JsonArray datasets = albums.getAsJsonArray(userNameTextField.getText());
+				for (int i = 0; i < datasets.size(); i++) {
+					if (datasets.size() > 0) {
+						JsonObject dataset = datasets.get(i).getAsJsonObject();
+						Note note = new Note(dataset.get("noteHeader").getAsString(),
+								dataset.get("noteBody").getAsString());
+						noteList.add(note);
+						Button button = new Button(note.getTitle());
+						button.setMaxWidth(Double.MAX_VALUE);
+						button.setId("noteSelectButton" + count);
+						button.getStyleClass().add("noteyButtons");
+						if (yourNotesArea.isVisible() == false) {
+							yourNotesArea.setVisible(true);
+						}
+						button.setOnAction(this::noteArchiveSelected);
+						yourNotesArea.getChildren().add(button);
+						count++;
+					} else {
+						if (yourNotesArea.isVisible())
+							yourNotesArea.setVisible(false);
 					}
-					button.setOnAction(this::noteArchiveSelected);
-					yourNotesArea.getChildren().add(button);
-					count++;
-				}
-				//If there are no notes
-				else{
-					if(yourNotesArea.isVisible())
-					yourNotesArea.setVisible(false);
 				}
 			}
+			
+
 			footerLabel.setText("Welcome " + userNameTextField.getText());
 		}
 	}
 
+	/**
+	 * If the title of the current selected notelist item is not equal to the text of the variable currentNoteSelected,
+	 * I add the note to a tempNoteList. I then set the noteList to be equal to the tempNoteList.
+	 * @param event
+	 * @throws IOException
+	 */
 	public void noteDeleteClicked(ActionEvent event) throws IOException {
+		File f = new File(txtFileName);
 
-		File inputFile = new File(txtFileName);
-		File tempFile = new File("myTempFile.txt");
+		ArrayList<Note> tempNoteList = new ArrayList<Note>();
 
-		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-		BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+		if (f.exists()) {
 
-		String oldTitleOfNote = null;
-		String oldBodyOfNote = null;
-		for (int i = 0; i < yourNotesArea.getChildren().size(); i++) {
-			if (currentNoteSelected == yourNotesArea.getChildren().get(i)) {
-				oldTitleOfNote = noteList.get(i).getTitle();
-				oldBodyOfNote = noteList.get(i).getBody();
+			// make new array list with updated notes
+			for (int i = 0; i < noteList.size(); i++) {
+				if (currentNoteSelected.getText() != noteList.get(i).getTitle()) {
+					tempNoteList.add(noteList.get(i));
+				}
 			}
-		}
+			noteList = tempNoteList;
+			clearDownFile();
+			JsonObject jsonO = createJson();
+			FileWriter fw = new FileWriter(txtFileName, true);
 
-		String lineToRemove = oldTitleOfNote + ":" + oldBodyOfNote + "~~";
-		String currentLine;
+			writeToFile(jsonO, fw);
 
-		while ((currentLine = reader.readLine()) != null) {
-			String trimmedCurrentLine = currentLine.trim();
-			if (trimmedCurrentLine == lineToRemove) {
+			// These lines below redraw the screen, so the deleted note
+			// disappears
+			titleNote.clear();
+			noteBody.clear();
+			yourNotesArea.getChildren().clear();
+			try {
+				prepareNotesScreen();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			if (trimmedCurrentLine.equals(lineToRemove))
-				continue;
-			writer.write(currentLine + System.getProperty("line.separator"));
-		}
-		writer.close();
-		reader.close();
-		inputFile.delete();
-		boolean successful = tempFile.renameTo(inputFile);
-		if (!successful) {
-		}
-
-		// These lines below redraw the screen, so the deleted note disappears
-		titleNote.clear();
-		noteBody.clear();
-		yourNotesArea.getChildren().clear();
-		try {
-			prepareNotesScreen();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
 	// When note is selected
+	/**
+	 * When a note button is selected, changes the css of the button and currentNoteSelected is updated
+	 * @param event
+	 */
 	public void noteArchiveSelected(ActionEvent event) {
-		// This un-selects the previous pressed note button
-		// if(currentNoteSelected!=null){
-		// currentNoteSelected.setStyle(
-		// "-fx-background-color: #f7f7f7;"
-		// + "-fx-background-insets: 0,1,4,5;"
-		// + "-fx-background-radius: 9,8,5,4;"
-		// + "-fx-padding: 15 30 15 30;"
-		// + "-fx-font-size: 12px;"
-		// + "-fx-text-fill: #333333;"
-		// + "-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) ,
-		// 1, 0.0 , 0 , 1);"
-		// );
-		// }
+
 		if (currentNoteSelected != null) {
 			currentNoteSelected.getStyleClass().remove("noteyButtonSelect");
 			currentNoteSelected.getStyleClass().add("noteyButtonDeselect");
@@ -221,15 +221,7 @@ public class MainLoggedInController implements Initializable {
 		newPressedButton.getStyleClass().add("noteyButtonSelect");
 		newPressedButton.getStyleClass().remove("noteyButtonDeselect");
 
-		// newPressedButton.setStyle("-fx-background-color: #8da6fc;"
-		// + "-fx-background-insets: 0,1,4,5;"
-		// + "-fx-background-radius: 9,8,5,4;"
-		// + "-fx-padding: 15 30 15 30;"
-		// + "-fx-font-size: 12px;"
-		// + "-fx-text-fill: #333333;"
-		// + "-fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) ,
-		// 1, 0.0 , 0 , 1)"
-		// );;
+
 		this.currentNoteSelected = newPressedButton;
 		isAnExistingNoteSelected = true;
 
@@ -242,6 +234,10 @@ public class MainLoggedInController implements Initializable {
 	}
 
 	// When the new note button is pressed
+	/**
+	 * The NotesArea, title and body text areas are cleared and the screen is redrawn
+	 * @param event
+	 */
 	public void newNoteButtonClicked(ActionEvent event) {
 		this.isAnExistingNoteSelected = false;
 		titleNote.clear();
@@ -254,6 +250,11 @@ public class MainLoggedInController implements Initializable {
 		}
 	}
 
+	/**
+	 * This creates a new scene and stage based on the fxml document for the login screen.
+	 * @param event
+	 * @throws IOException
+	 */
 	public void logOutButtonClicked(ActionEvent event) throws IOException {
 
 		Parent parent2 = FXMLLoader.load(getClass().getResource("sample.fxml"));
@@ -266,117 +267,150 @@ public class MainLoggedInController implements Initializable {
 		isAnExistingNoteSelected = false;
 	}
 
+	/**
+	 * Determines whether to add a new note, or edit an existing note depending on whether a note button is currently selected.
+	 * @param event
+	 * @throws Exception
+	 */
 	public void saveNoteLocally(ActionEvent event) throws Exception {
+		// Write to notes.json
+
 		if (isAnExistingNoteSelected == false) {
-			File f = new File(txtFileName);
-			String title = titleNote.getText();
-			String body = noteBody.getText();
-
-			if (f.exists()) {
-				FileWriter fw = new FileWriter(txtFileName, true);
-				try {
-					fw.write(title + ":" + body + "~~" + "\n");
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					if (fw != null) {
-						fw.close();
-					}
-				}
-
-				// These lines below redraw the screen, so the saved note
-				// appears
-				yourNotesArea.getChildren().clear();
-				try {
-					prepareNotesScreen();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-			} else {
-				BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
-				out.write(title + ":" + body + "~~");
-				out.close();
-
-				// These lines below redraw the screen, so the saved note
-				// appears
-				yourNotesArea.getChildren().clear();
-				try {
-					prepareNotesScreen();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+			addNewNote();
 		}
 		// The below code is executed when an archived note is selected for
 		// editing and save is pressed
 		else {
-			File f = new File(txtFileName);
-			String title = titleNote.getText();
-			String body = noteBody.getText();
+			editExistingNote();
+		}
+	}
 
-			if (f.exists()) {
-				FileWriter fw = new FileWriter(txtFileName, true);
-				try {
-					fw.write(title + ":" + body + "~~" + "\n");
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					if (fw != null) {
-						fw.close();
-					}
+
+	/**
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private void editExistingNote() throws FileNotFoundException, IOException {
+		File f = new File(txtFileName);
+		String title = titleNote.getText();
+		String body = noteBody.getText();
+		if (f.exists()) {
+
+			// make new array list with updated notes
+			for (int i = 0; i < noteList.size(); i++) {
+				if (currentNoteSelected.getText().equals(noteList.get(i).getTitle())
+						&& noteList.get(i).getBody() != body) {
+					Note newNote = new Note(title, body);
+					noteList.set(i, newNote);
 				}
-
-				File tempFile = new File("myTempFile.txt");
-
-				BufferedReader reader = new BufferedReader(new FileReader(f));
-				BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-
-				String oldTitleOfNote = null;
-				String oldBodyOfNote = null;
-				// For each note button
-				for (int i = 0; i < yourNotesArea.getChildren().size(); i++) {
-					if (currentNoteSelected == yourNotesArea.getChildren().get(i)) {
-						oldTitleOfNote = noteList.get(i).getTitle();
-						oldBodyOfNote = noteList.get(i).getBody();
-					}
-				}
-
-				String lineToRemove = oldTitleOfNote + ":" + oldBodyOfNote + "~~";
-				String currentLine;
-
-				while ((currentLine = reader.readLine()) != null) {
-					String trimmedCurrentLine = currentLine.trim();
-					if (trimmedCurrentLine.equals(lineToRemove))
-						continue;
-					if (trimmedCurrentLine == lineToRemove) {
-					}
-					writer.write(currentLine + System.getProperty("line.separator"));
-				}
-				writer.close();
-				reader.close();
-				File tempFile2 = f;
-				f.delete();
-				boolean successful = tempFile.renameTo(tempFile2);
-				if (!successful) {
-					System.out.println("this was not successful");
-				}
-
-				// These lines below redraw the screen, so the deleted note
-				// disappears
-				titleNote.clear();
-				noteBody.clear();
-				yourNotesArea.getChildren().clear();
-				try {
-					prepareNotesScreen();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-			} else {
-				System.out.println("Note text file does not exist so note cannot be edited");
 			}
+			clearDownFile();
+			JsonObject jsonO = createJson();
+			FileWriter fw = new FileWriter(txtFileName, true);
 
+			writeToFile(jsonO, fw);
+
+			// These lines below redraw the screen, so the deleted note
+			// disappears
+			titleNote.clear();
+			noteBody.clear();
+			yourNotesArea.getChildren().clear();
+			try {
+				prepareNotesScreen();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.out.println("Note text file does not exist so note cannot be edited");
+		}
+	}
+
+
+	/**
+	 * Creates a Json object, clears down the text file, writes details to json object, writes json object to the text file, redraws screen.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private void addNewNote() throws FileNotFoundException, IOException {
+		File f = new File(txtFileName);
+		Note note = new Note(titleNote.getText(), noteBody.getText());
+		noteList.add(note);
+		JsonObject jsonO = createJson();
+
+		clearDownFile();
+
+		if (f.exists()) {
+			FileWriter fw = new FileWriter(txtFileName, true);
+
+			writeToFile(jsonO, fw);
+
+		} else {
+			BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
+			try {
+				out.write(jsonO.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (out != null) {
+					out.close();
+				}
+			}
+		}
+		// These lines below redraw the screen, so the saved note
+		// appears
+		yourNotesArea.getChildren().clear();
+		try {
+			prepareNotesScreen();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Returns a Json object from data in noteList
+	 * @return {@link JsonObject}
+	 */
+	private JsonObject createJson() {
+		JsonArray jArray = new JsonArray();
+		for (Note toSave : noteList) {
+			JsonObject note2 = new JsonObject();
+			note2.addProperty("noteHeader", toSave.getTitle());
+			note2.addProperty("noteBody", toSave.getBody());
+			jArray.add(note2);
+
+		}
+
+		JsonObject jsonO = new JsonObject();
+		jsonO.add("Jonathan", jArray);
+		return jsonO;
+	}
+
+	/**
+	 * Creates a new PrintWriter based on the text file, sets the text file to ""
+	 * .text file cleared is defined in @param txtFileName
+	 * @throws FileNotFoundException
+	 */
+	private void clearDownFile() throws FileNotFoundException {
+		PrintWriter writer = new PrintWriter(txtFileName);
+		writer.print("");
+		writer.close();
+	}
+
+	/**
+	 * Writes the given Json object to the filewriter
+	 * @param jsonO {@link JsonObject}
+	 * @param fw {@link FileWriter}
+	 * @throws IOException
+	 */
+	private void writeToFile(JsonObject jsonO, FileWriter fw) throws IOException {
+		try {
+			fw.write(jsonO.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (fw != null) {
+				fw.close();
+			}
 		}
 	}
 
