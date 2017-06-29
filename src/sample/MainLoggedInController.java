@@ -122,12 +122,12 @@ public class MainLoggedInController implements Initializable {
 	public void prepareNotesScreen() throws Exception {
 
 		File f = new File(txtFileName);
+		noteList = new ArrayList<Note>();
 		if (f.exists()) {
-			noteList = new ArrayList<Note>();
+//			noteList = new ArrayList<Note>();
 			int count = 0;
-
-			// Reading from notes.json and printing to console
-			Scanner jsonScanner = new Scanner(new FileReader("Jonathan.txt"));
+			// Reading from textFile and printing to console
+			Scanner jsonScanner = new Scanner(new FileReader(txtFileName));
 			String jsonFile = "";
 			jsonFile += jsonScanner.nextLine();
 			jsonScanner.close();
@@ -160,8 +160,6 @@ public class MainLoggedInController implements Initializable {
 					}
 				}
 			}
-			
-
 			footerLabel.setText("Welcome " + userNameTextField.getText());
 		}
 	}
@@ -273,7 +271,7 @@ public class MainLoggedInController implements Initializable {
 	 * @throws Exception
 	 */
 	public void saveNoteLocally(ActionEvent event) throws Exception {
-		// Write to notes.json
+		// Write to textFile
 
 		if (isAnExistingNoteSelected == false) {
 			addNewNote();
@@ -334,6 +332,9 @@ public class MainLoggedInController implements Initializable {
 	private void addNewNote() throws FileNotFoundException, IOException {
 		File f = new File(txtFileName);
 		Note note = new Note(titleNote.getText(), noteBody.getText());
+		///////////////////////
+//		noteList = new ArrayList<Note>();
+		///////////////////////
 		noteList.add(note);
 		JsonObject jsonO = createJson();
 
@@ -345,8 +346,9 @@ public class MainLoggedInController implements Initializable {
 			writeToFile(jsonO, fw);
 
 		} else {
+			System.out.println("f does not exist");
 			BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
-			try {
+			try { 
 				out.write(jsonO.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -381,7 +383,8 @@ public class MainLoggedInController implements Initializable {
 		}
 
 		JsonObject jsonO = new JsonObject();
-		jsonO.add("Jonathan", jArray);
+		String currentUserName = userNameTextField.getText();
+		jsonO.add(currentUserName, jArray);
 		return jsonO;
 	}
 
