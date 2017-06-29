@@ -1,14 +1,17 @@
 #logInButton {
     -fx-background-color: #a9ff00;
-    -fx-background-radius: 6, 5;
+    -fx-background-radius: 10, 8;
     -fx-background-insets: 0, 1;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.4) , 5, 0.0 , 0 , 1 );
     -fx-text-fill: #395306;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
 }
 
 #logInButton:hover{
 	-fx-background-color: #e6ffb7;
-    -fx-background-radius: 6, 5;
+    -fx-background-radius: 10, 8;
     -fx-background-insets: 0, 1;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.4) , 5, 0.0 , 0 , 1 );
     -fx-text-fill: #395306;
@@ -99,7 +102,6 @@
     -fx-font-size: 12px;
     -fx-text-fill: #333333;
     -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
-	
 }
 
 .noteyButtonDeselect{
@@ -108,7 +110,7 @@
 
 .noteyButtonSelect{
 	
-	-fx-background-color: #8da6fc;
+	-fx-background-color: #8da6fc !important;
 	
 }
 
@@ -128,4 +130,8 @@
 	-fx-border-bottom: 10;
 	-fx-border-style: solid;
     -fx-border-color: white;
+}
+
+.button:hover{
+	-fx-cursor:hand;
 }

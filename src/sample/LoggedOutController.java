@@ -59,12 +59,12 @@ public class LoggedOutController {
 
 	@FXML
 	private ImageView imageView;
-	
+
 	@FXML
 	private Label footerText;
 
 	public void initialize() {
-		DigitalClock clock1 = new DigitalClock(); 
+		DigitalClock clock1 = new DigitalClock();
 		footerArea.getChildren().remove(footerText);
 		footerArea.getChildren().add(clock1);
 	}
@@ -82,7 +82,8 @@ public class LoggedOutController {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("loggedInSample.fxml"));
 			MainLoggedInController mainLoggedInController = new MainLoggedInController();
 			mainLoggedInController.setUserData(userName);
-			loader.setController(mainLoggedInController);//Not sure about this line
+			loader.setController(mainLoggedInController);// Not sure about this
+															// line
 			Scene scene = logInButton.getScene();
 			try {
 				Parent pane = loader.load();

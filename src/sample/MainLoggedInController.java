@@ -94,9 +94,9 @@ public class MainLoggedInController implements Initializable {
 
 	private String txtFileName;
 
-
 	/**
 	 * Initialization class (like a constructor)
+	 * 
 	 * @param location
 	 * @param resources
 	 */
@@ -113,10 +113,11 @@ public class MainLoggedInController implements Initializable {
 		}
 	}
 
-
 	/**
-	 *Reads in JSON from the txt file. Creates a note object for each note element in the JSON.
-	 *Creates a new button for each note (getting this value from a JSon array of jsonobjects).
+	 * Reads in JSON from the txt file. Creates a note object for each note
+	 * element in the JSON. Creates a new button for each note (getting this
+	 * value from a JSon array of jsonobjects).
+	 * 
 	 * @throws Exception
 	 */
 	public void prepareNotesScreen() throws Exception {
@@ -124,7 +125,7 @@ public class MainLoggedInController implements Initializable {
 		File f = new File(txtFileName);
 		noteList = new ArrayList<Note>();
 		if (f.exists()) {
-//			noteList = new ArrayList<Note>();
+			// noteList = new ArrayList<Note>();
 			int count = 0;
 			// Reading from textFile and printing to console
 			Scanner jsonScanner = new Scanner(new FileReader(txtFileName));
@@ -165,8 +166,12 @@ public class MainLoggedInController implements Initializable {
 	}
 
 	/**
-	 * If the title of the current selected notelist item is not equal to the text of the variable currentNoteSelected,
-	 * I add the note to a tempNoteList. I then set the noteList to be equal to the tempNoteList.
+	 * If the title of the current selected notelist item is not equal to the
+	 * text of the variable currentNoteSelected, I add the note to a
+	 * tempNoteList. I then set the noteList to be equal to the tempNoteList.
+	 * Clears down the text file, then creates a JsonObject and writes it to the
+	 * text file
+	 * 
 	 * @param event
 	 * @throws IOException
 	 */
@@ -205,7 +210,9 @@ public class MainLoggedInController implements Initializable {
 
 	// When note is selected
 	/**
-	 * When a note button is selected, changes the css of the button and currentNoteSelected is updated
+	 * When a note button is selected, changes the css of the button and
+	 * currentNoteSelected is updated
+	 * 
 	 * @param event
 	 */
 	public void noteArchiveSelected(ActionEvent event) {
@@ -218,7 +225,6 @@ public class MainLoggedInController implements Initializable {
 		Button newPressedButton = (Button) event.getSource();
 		newPressedButton.getStyleClass().add("noteyButtonSelect");
 		newPressedButton.getStyleClass().remove("noteyButtonDeselect");
-
 
 		this.currentNoteSelected = newPressedButton;
 		isAnExistingNoteSelected = true;
@@ -233,7 +239,9 @@ public class MainLoggedInController implements Initializable {
 
 	// When the new note button is pressed
 	/**
-	 * The NotesArea, title and body text areas are cleared and the screen is redrawn
+	 * The NotesArea, title and body text areas are cleared and the screen is
+	 * redrawn
+	 * 
 	 * @param event
 	 */
 	public void newNoteButtonClicked(ActionEvent event) {
@@ -249,7 +257,9 @@ public class MainLoggedInController implements Initializable {
 	}
 
 	/**
-	 * This creates a new scene and stage based on the fxml document for the login screen.
+	 * This creates a new scene and stage based on the fxml document for the
+	 * login screen.
+	 * 
 	 * @param event
 	 * @throws IOException
 	 */
@@ -266,7 +276,9 @@ public class MainLoggedInController implements Initializable {
 	}
 
 	/**
-	 * Determines whether to add a new note, or edit an existing note depending on whether a note button is currently selected.
+	 * Determines whether to add a new note, or edit an existing note depending
+	 * on whether a note button is currently selected.
+	 * 
 	 * @param event
 	 * @throws Exception
 	 */
@@ -283,7 +295,6 @@ public class MainLoggedInController implements Initializable {
 		}
 	}
 
-
 	/**
 	 * @throws FileNotFoundException
 	 * @throws IOException
@@ -296,8 +307,7 @@ public class MainLoggedInController implements Initializable {
 
 			// make new array list with updated notes
 			for (int i = 0; i < noteList.size(); i++) {
-				if (currentNoteSelected.getText().equals(noteList.get(i).getTitle())
-						&& noteList.get(i).getBody() != body) {
+				if (currentNoteSelected.getText().equals(noteList.get(i).getTitle()) && noteList.get(i).getBody() != body) {
 					Note newNote = new Note(title, body);
 					noteList.set(i, newNote);
 				}
@@ -323,18 +333,16 @@ public class MainLoggedInController implements Initializable {
 		}
 	}
 
-
 	/**
-	 * Creates a Json object, clears down the text file, writes details to json object, writes json object to the text file, redraws screen.
+	 * Creates a Json object, clears down the text file, writes details to json
+	 * object, writes json object to the text file, redraws screen.
+	 * 
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
 	private void addNewNote() throws FileNotFoundException, IOException {
 		File f = new File(txtFileName);
 		Note note = new Note(titleNote.getText(), noteBody.getText());
-		///////////////////////
-//		noteList = new ArrayList<Note>();
-		///////////////////////
 		noteList.add(note);
 		JsonObject jsonO = createJson();
 
@@ -348,7 +356,7 @@ public class MainLoggedInController implements Initializable {
 		} else {
 			System.out.println("f does not exist");
 			BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
-			try { 
+			try {
 				out.write(jsonO.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -370,6 +378,7 @@ public class MainLoggedInController implements Initializable {
 
 	/**
 	 * Returns a Json object from data in noteList
+	 * 
 	 * @return {@link JsonObject}
 	 */
 	private JsonObject createJson() {
@@ -389,8 +398,9 @@ public class MainLoggedInController implements Initializable {
 	}
 
 	/**
-	 * Creates a new PrintWriter based on the text file, sets the text file to ""
-	 * .text file cleared is defined in @param txtFileName
+	 * Creates a new PrintWriter based on the text file, sets the text file to
+	 * "" .text file cleared is defined in @param txtFileName
+	 * 
 	 * @throws FileNotFoundException
 	 */
 	private void clearDownFile() throws FileNotFoundException {
@@ -401,8 +411,11 @@ public class MainLoggedInController implements Initializable {
 
 	/**
 	 * Writes the given Json object to the filewriter
-	 * @param jsonO {@link JsonObject}
-	 * @param fw {@link FileWriter}
+	 * 
+	 * @param jsonO
+	 *            {@link JsonObject}
+	 * @param fw
+	 *            {@link FileWriter}
 	 * @throws IOException
 	 */
 	private void writeToFile(JsonObject jsonO, FileWriter fw) throws IOException {

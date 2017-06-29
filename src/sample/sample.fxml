@@ -20,11 +20,16 @@
             <MenuBar />
             <HBox spacing="10.0">
                <children>
-                  <Label prefHeight="24.0" prefWidth="94.0" text="Enter Username:" />
-                  <TextField fx:id="userName" promptText="Username" />
-                  <Region HBox.hgrow="ALWAYS" />
+                  <Label prefHeight="24.0" prefWidth="94.0" text="Enter Username:">
+                     <HBox.margin>
+                        <Insets top="1.0" />
+                     </HBox.margin></Label>
+                  <TextField fx:id="userName" promptText="Username">
+                     <HBox.margin>
+                        <Insets right="10.0" top="3.0" />
+                     </HBox.margin></TextField>
                   <Button fx:id="logInButton" mnemonicParsing="false" onAction="#loginButtonClicked" text="Log In" />
-                  <Button fx:id="settingsButton" layoutX="308.0" layoutY="10.0" mnemonicParsing="false" text="Settings" />
+                  <Region HBox.hgrow="ALWAYS" />
                </children>
                <VBox.margin>
                   <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
