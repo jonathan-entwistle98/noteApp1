@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+import java.util.Set;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -91,8 +93,10 @@ public class MainLoggedInController implements Initializable {
 	private Button currentNoteSelected;
 
 	private Boolean isAnExistingNoteSelected = false;
+	
+	private String userLoggedIn;
 
-	private String txtFileName;
+	private String txtFileName = "noteSave.txt";
 
 	/**
 	 * Initialization class (like a constructor)
@@ -121,7 +125,7 @@ public class MainLoggedInController implements Initializable {
 	 * @throws Exception
 	 */
 	public void prepareNotesScreen() throws Exception {
-
+		
 		File f = new File(txtFileName);
 		noteList = new ArrayList<Note>();
 		if (f.exists()) {
@@ -132,35 +136,37 @@ public class MainLoggedInController implements Initializable {
 			String jsonFile = "";
 			jsonFile += jsonScanner.nextLine();
 			jsonScanner.close();
-			// Read from noteString and create new notes, adding actionListener
-			// to a created button which is then added to the NotesArea
+			
+			// Read from Json and create new notes
 			JsonParser parser = new JsonParser();
 			JsonElement element = parser.parse(jsonFile.toString());
-			if (element.isJsonObject()) {
-				JsonObject albums = element.getAsJsonObject();
-				JsonArray datasets = albums.getAsJsonArray(userNameTextField.getText());
-				for (int i = 0; i < datasets.size(); i++) {
-					if (datasets.size() > 0) {
-						JsonObject dataset = datasets.get(i).getAsJsonObject();
-						Note note = new Note(dataset.get("noteHeader").getAsString(),
-								dataset.get("noteBody").getAsString());
-						noteList.add(note);
-						Button button = new Button(note.getTitle());
-						button.setMaxWidth(Double.MAX_VALUE);
-						button.setId("noteSelectButton" + count);
-						button.getStyleClass().add("noteyButtons");
-						if (yourNotesArea.isVisible() == false) {
-							yourNotesArea.setVisible(true);
-						}
-						button.setOnAction(this::noteArchiveSelected);
-						yourNotesArea.getChildren().add(button);
-						count++;
-					} else {
-						if (yourNotesArea.isVisible())
-							yourNotesArea.setVisible(false);
+			JsonObject albums = element.getAsJsonObject();
+			//For each user datasets is different
+			JsonArray datasets = albums.getAsJsonArray(userNameTextField.getText());
+			
+			for (int i = 0; i < datasets.size(); i++) {
+				if (datasets.size() > 0) {
+					JsonObject dataset = datasets.get(i).getAsJsonObject();
+					Note note = new Note(dataset.get("noteHeader").getAsString(), dataset.get("noteBody").getAsString());
+					
+//					Adds actionListener to a created button which is then added to the NotesArea
+					noteList.add(note);
+					Button button = new Button(note.getTitle());
+					button.setMaxWidth(Double.MAX_VALUE);
+					button.setId("noteSelectButton" + count);
+					button.getStyleClass().add("noteyButtons");
+					if (yourNotesArea.isVisible() == false) {
+						yourNotesArea.setVisible(true);
 					}
+					button.setOnAction(this::noteArchiveSelected);
+					yourNotesArea.getChildren().add(button);
+					count++;
+				} else {
+					if (yourNotesArea.isVisible())
+						yourNotesArea.setVisible(false);
 				}
 			}
+			
 			footerLabel.setText("Welcome " + userNameTextField.getText());
 		}
 	}
@@ -181,16 +187,32 @@ public class MainLoggedInController implements Initializable {
 		ArrayList<Note> tempNoteList = new ArrayList<Note>();
 
 		if (f.exists()) {
-
+			
+			Scanner jsonScanner = new Scanner(new FileReader(txtFileName));
+			String jsonFile = "";
+			jsonFile += jsonScanner.nextLine();
+			jsonScanner.close();
+			
+			//Creates a JsonObject (o) based on json string input
+			JsonParser parser = new JsonParser();
+			JsonElement element = parser.parse(jsonFile.toString());
+			JsonObject o = parser.parse(jsonFile.toString()).getAsJsonObject();
+			
+			//Creates a Set of a map (entries) of json key value pairs for each user and their json-coded notes
+			JsonObject albums = element.getAsJsonObject();
+			Set<Map.Entry<String, JsonElement>> entries = o.entrySet();
+		
 			// make new array list with updated notes
 			for (int i = 0; i < noteList.size(); i++) {
-				if (currentNoteSelected.getText() != noteList.get(i).getTitle()) {
+				if (!currentNoteSelected.getText().equals(noteList.get(i).getTitle())) {
 					tempNoteList.add(noteList.get(i));
 				}
 			}
 			noteList = tempNoteList;
 			clearDownFile();
-			JsonObject jsonO = createJson();
+		
+			//Creates the json for the whole file (jsonO)
+			JsonObject jsonO = createJson(entries, albums);
 			FileWriter fw = new FileWriter(txtFileName, true);
 
 			writeToFile(jsonO, fw);
@@ -271,7 +293,7 @@ public class MainLoggedInController implements Initializable {
 		loggedOutScene.getStylesheets().add("resource/test.css");
 		window.setScene(loggedOutScene);
 		window.show();
-		resetTextFileForCurrentUser();
+		resetUserLoggedInForCurrentUser();
 		isAnExistingNoteSelected = false;
 	}
 
@@ -301,25 +323,40 @@ public class MainLoggedInController implements Initializable {
 	 */
 	private void editExistingNote() throws FileNotFoundException, IOException {
 		File f = new File(txtFileName);
-		String title = titleNote.getText();
-		String body = noteBody.getText();
 		if (f.exists()) {
 
-			// make new array list with updated notes
-			for (int i = 0; i < noteList.size(); i++) {
-				if (currentNoteSelected.getText().equals(noteList.get(i).getTitle()) && noteList.get(i).getBody() != body) {
-					Note newNote = new Note(title, body);
-					noteList.set(i, newNote);
-				}
-			}
-			clearDownFile();
-			JsonObject jsonO = createJson();
-			FileWriter fw = new FileWriter(txtFileName, true);
+			//Creates a string of the json file (jsonFile)
+			Scanner jsonScanner = new Scanner(new FileReader(txtFileName));
+			String jsonFile = "";
+			jsonFile += jsonScanner.nextLine();
+			jsonScanner.close();
+			
+			//Creates a JsonObject (o) based on json string input
+			JsonParser parser = new JsonParser();
+			JsonElement element = parser.parse(jsonFile.toString());
+			JsonObject o = parser.parse(jsonFile.toString()).getAsJsonObject();
+			
+			//Creates a Set of a map (entries) of json key value pairs for each user and their json-coded notes
+			JsonObject albums = element.getAsJsonObject();
+			Set<Map.Entry<String, JsonElement>> entries = o.entrySet();
+			
+			//Returns an updated Json object (jsonO)
 
+			for(Note note1: noteList){
+				if(note1.getTitle().equals(titleNote.getText())){
+					note1.setTitle(titleNote.getText());
+					note1.setBody(noteBody.getText());
+				}
+				
+			}
+			
+			JsonObject jsonO = createJson(entries, albums);
+			
+			clearDownFile();
+			FileWriter fw = new FileWriter(txtFileName, true);
 			writeToFile(jsonO, fw);
 
-			// These lines below redraw the screen, so the deleted note
-			// disappears
+			// These lines below redraw the screen, so the edited note is displayed
 			titleNote.clear();
 			noteBody.clear();
 			yourNotesArea.getChildren().clear();
@@ -328,13 +365,14 @@ public class MainLoggedInController implements Initializable {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else {
+		}
+		else {
 			System.out.println("Note text file does not exist so note cannot be edited");
 		}
 	}
 
 	/**
-	 * Creates a Json object, clears down the text file, writes details to json
+	 * Creates a Json object, clears down the noteSave.txt file, writes details to json
 	 * object, writes json object to the text file, redraws screen.
 	 * 
 	 * @throws FileNotFoundException
@@ -342,17 +380,28 @@ public class MainLoggedInController implements Initializable {
 	 */
 	private void addNewNote() throws FileNotFoundException, IOException {
 		File f = new File(txtFileName);
+
+		Scanner jsonScanner = new Scanner(new FileReader(txtFileName));
+		String jsonFile = "";
+		jsonFile += jsonScanner.nextLine();
+		jsonScanner.close();
+		
+		JsonParser parser = new JsonParser();
+		JsonElement element = parser.parse(jsonFile.toString());
+		JsonObject o = parser.parse(jsonFile.toString()).getAsJsonObject();
+		
+		JsonObject albums = element.getAsJsonObject();
+		Set<Map.Entry<String, JsonElement>> entries = o.entrySet();
+		
 		Note note = new Note(titleNote.getText(), noteBody.getText());
 		noteList.add(note);
-		JsonObject jsonO = createJson();
+		JsonObject jsonO = createJson(entries, albums);
 
 		clearDownFile();
 
 		if (f.exists()) {
 			FileWriter fw = new FileWriter(txtFileName, true);
-
 			writeToFile(jsonO, fw);
-
 		} else {
 			System.out.println("f does not exist");
 			BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
@@ -377,24 +426,35 @@ public class MainLoggedInController implements Initializable {
 	}
 
 	/**
-	 * Returns a Json object from data in noteList
+	 * Returns a Json object from data in noteList by iterating through a JsonObject(created by the setOfMapKeys parameter),
+	 * checking if the currentUserName is equal to a key value within the JsonObject
 	 * 
 	 * @return {@link JsonObject}
 	 */
-	private JsonObject createJson() {
+	private JsonObject createJson(Set<Map.Entry<String, JsonElement>> setOfMapKeys, JsonObject albums) {
 		JsonArray jArray = new JsonArray();
+		JsonObject newJsonObject = new JsonObject();
+		
+		//adds string of header and body text to jArray
 		for (Note toSave : noteList) {
 			JsonObject note2 = new JsonObject();
 			note2.addProperty("noteHeader", toSave.getTitle());
 			note2.addProperty("noteBody", toSave.getBody());
 			jArray.add(note2);
-
 		}
 
-		JsonObject jsonO = new JsonObject();
 		String currentUserName = userNameTextField.getText();
-		jsonO.add(currentUserName, jArray);
-		return jsonO;
+		for(Map.Entry<String, JsonElement> entry: setOfMapKeys){
+			if (entry.getKey().toString().equals(currentUserName)){
+				entry.setValue(jArray);
+			}
+		}
+		
+		for(Map.Entry<String, JsonElement> entry: setOfMapKeys){
+			newJsonObject.add(entry.getKey(), entry.getValue());
+		}
+		System.out.println(newJsonObject);
+		return newJsonObject;
 	}
 
 	/**
@@ -436,10 +496,10 @@ public class MainLoggedInController implements Initializable {
 
 	public void createTextFileForCurrentUser() {
 		// This won't work if two users have the same username
-		this.txtFileName = this.userNameTextField.getText() + ".txt";
+		this.userLoggedIn = this.userNameTextField.getText() + ".txt";
 	}
 
-	public void resetTextFileForCurrentUser() {
-		this.txtFileName = null;
+	public void resetUserLoggedInForCurrentUser() {
+		this.userLoggedIn = null;
 	}
 }
