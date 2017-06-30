@@ -107,7 +107,7 @@ public class MainLoggedInController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		try {
-			createTextFileForCurrentUser();
+			addJsonForPotentialNewUser();
 			DigitalClock clock1 = new DigitalClock();
 			footerArea.getChildren().remove(footerLabel);
 			footerArea.getChildren().add(clock1);
@@ -494,9 +494,99 @@ public class MainLoggedInController implements Initializable {
 		this.userNameTextField = userName;
 	}
 
-	public void createTextFileForCurrentUser() {
-		// This won't work if two users have the same username
-		this.userLoggedIn = this.userNameTextField.getText() + ".txt";
+	public void addJsonForPotentialNewUser() {
+//		// This won't work if two users have the same username
+//		this.userLoggedIn = this.userNameTextField.getText() + ".txt";
+		
+		File f = new File(txtFileName);
+		if (!f.exists()) {
+			System.out.println("noteSave does not yet exist");
+			try {
+				BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		
+		}
+		else{
+			
+			
+			
+//			// Reading from textFile and printing to console
+//			Scanner jsonScanner = new Scanner(new FileReader(txtFileName));
+//			String jsonFile = "";
+//			jsonFile += jsonScanner.nextLine();
+//			jsonScanner.close();
+//			
+//			// Read from Json and create new notes
+//			JsonParser parser = new JsonParser();
+//			JsonElement element = parser.parse(jsonFile.toString());
+//			JsonObject albums = element.getAsJsonObject();
+//			//For each user datasets is different
+//			JsonArray datasets = albums.getAsJsonArray(userNameTextField.getText());
+			
+
+//			Creates a Json object, clears down the noteSave.txt file, writes new User to json
+//			object, writes json object to the text file.
+			Scanner jsonScanner = null;
+			try {
+				jsonScanner = new Scanner(new FileReader(txtFileName));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			String jsonFile = "";
+			jsonFile += jsonScanner.nextLine();
+			jsonScanner.close();
+			
+			JsonParser parser = new JsonParser();
+			JsonElement element = parser.parse(jsonFile.toString());
+			JsonObject o = parser.parse(jsonFile.toString()).getAsJsonObject();
+			
+			JsonElement userNameElement;
+			JsonObject userNameObject;
+			userNameObject.add(userNameTextField.getText(), value);
+			
+			
+			JsonObject albums = element.getAsJsonObject();
+			Set<Map.Entry<String, JsonElement>> entries = o.entrySet();
+			entries.add(e);
+			System.out.println("Friend Friend" + entries.toString());
+			
+//			Note note = new Note(titleNote.getText(), noteBody.getText());
+//			noteList.add(note);
+			JsonObject jsonO = createJson(entries, albums);
+			jsonO.ad
+//
+//			clearDownFile();
+//
+//			if (f.exists()) {
+//				FileWriter fw = new FileWriter(txtFileName, true);
+//				writeToFile(jsonO, fw);
+//			} else {
+//				System.out.println("f does not exist");
+//				BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
+//				try {
+//					out.write(jsonO.toString());
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				} finally {
+//					if (out != null) {
+//						out.close();
+//					}
+//				}
+//			}
+//			
+//
+//			
+//			//If the user already exists within noteSave.txt
+//			if(){
+//				
+//			}
+		}
+		
+		
+		
 	}
 
 	public void resetUserLoggedInForCurrentUser() {
