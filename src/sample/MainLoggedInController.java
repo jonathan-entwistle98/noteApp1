@@ -346,7 +346,7 @@ public class MainLoggedInController implements Initializable {
 			//Returns an updated Json object (jsonO)
 
 			for(Note note1: noteList){
-				if(note1.getTitle().equals(titleNote.getText())){
+				if(note1.getTitle().equals(currentNoteSelected.getText())){
 					note1.setTitle(titleNote.getText());
 					note1.setBody(noteBody.getText());
 				}
