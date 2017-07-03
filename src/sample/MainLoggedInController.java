@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.Set;
@@ -107,6 +108,7 @@ public class MainLoggedInController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		try {
+			//JsonManager jsonManager = new JsonManager();
 			addJsonForPotentialNewUser();
 			DigitalClock clock1 = new DigitalClock();
 			footerArea.getChildren().remove(footerLabel);
@@ -139,8 +141,9 @@ public class MainLoggedInController implements Initializable {
 			
 			// Read from Json and create new notes
 			JsonParser parser = new JsonParser();
-			JsonElement element = parser.parse(jsonFile.toString());
-			JsonObject albums = element.getAsJsonObject();
+//			JsonElement element = parser.parse(jsonFile);
+			JsonObject albums = parser.parse(jsonFile).getAsJsonObject();
+//			JsonObject albums = element.getAsJsonObject();
 			//For each user datasets is different
 			JsonArray datasets = albums.getAsJsonArray(userNameTextField.getText());
 			
@@ -445,7 +448,7 @@ public class MainLoggedInController implements Initializable {
 
 		String currentUserName = userNameTextField.getText();
 		for(Map.Entry<String, JsonElement> entry: setOfMapKeys){
-			if (entry.getKey().toString().equals(currentUserName)){
+			if (entry.getKey().toString().equals(currentUserName)){ 
 				entry.setValue(jArray);
 			}
 		}
@@ -506,88 +509,58 @@ public class MainLoggedInController implements Initializable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
 		
+		Scanner jsonScanner2 = null;
+		try {
+			jsonScanner2 = new Scanner(new FileReader(txtFileName));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		String jsonFile2 = "";
+		jsonFile2 += jsonScanner2.nextLine();
+		jsonScanner2.close();			
+		System.out.println("the json string is " + jsonFile2);
+		//Checks if the username is already in the json, if it is, do nothing and the else code below is not called.
+		if(jsonFile2.toLowerCase().contains(userNameTextField.getText().toLowerCase())){
+			
 		}
 		else{
 			
-			
-			
-//			// Reading from textFile and printing to console
-//			Scanner jsonScanner = new Scanner(new FileReader(txtFileName));
-//			String jsonFile = "";
-//			jsonFile += jsonScanner.nextLine();
-//			jsonScanner.close();
-//			
-//			// Read from Json and create new notes
-//			JsonParser parser = new JsonParser();
-//			JsonElement element = parser.parse(jsonFile.toString());
-//			JsonObject albums = element.getAsJsonObject();
-//			//For each user datasets is different
-//			JsonArray datasets = albums.getAsJsonArray(userNameTextField.getText());
-			
-
 //			Creates a Json object, clears down the noteSave.txt file, writes new User to json
 //			object, writes json object to the text file.
 			Scanner jsonScanner = null;
 			try {
 				jsonScanner = new Scanner(new FileReader(txtFileName));
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			String jsonFile = "";
 			jsonFile += jsonScanner.nextLine();
 			jsonScanner.close();
-			
 			JsonParser parser = new JsonParser();
-			JsonElement element = parser.parse(jsonFile.toString());
 			JsonObject o = parser.parse(jsonFile.toString()).getAsJsonObject();
+
+			String userNameCurrent = userNameTextField.getText();
+			JsonArray blankArray = new JsonArray();
+			o.add(userNameCurrent, blankArray);
+			System.out.println("o is " + o);
 			
-			JsonElement userNameElement;
-			JsonObject userNameObject;
-			userNameObject.add(userNameTextField.getText(), value);
-			
-			
-			JsonObject albums = element.getAsJsonObject();
-			Set<Map.Entry<String, JsonElement>> entries = o.entrySet();
-			entries.add(e);
-			System.out.println("Friend Friend" + entries.toString());
-			
-//			Note note = new Note(titleNote.getText(), noteBody.getText());
-//			noteList.add(note);
-			JsonObject jsonO = createJson(entries, albums);
-			jsonO.ad
-//
-//			clearDownFile();
-//
-//			if (f.exists()) {
-//				FileWriter fw = new FileWriter(txtFileName, true);
-//				writeToFile(jsonO, fw);
-//			} else {
-//				System.out.println("f does not exist");
-//				BufferedWriter out = new BufferedWriter(new FileWriter(txtFileName));
-//				try {
-//					out.write(jsonO.toString());
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				} finally {
-//					if (out != null) {
-//						out.close();
-//					}
-//				}
-//			}
-//			
-//
-//			
-//			//If the user already exists within noteSave.txt
-//			if(){
-//				
-//			}
+			FileWriter fw = null;
+			try {
+				clearDownFile();
+				fw = new FileWriter(txtFileName, true);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			try {
+				writeToFile(o, fw);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
 		}
-		
-		
-		
 	}
+		
 
 	public void resetUserLoggedInForCurrentUser() {
 		this.userLoggedIn = null;
