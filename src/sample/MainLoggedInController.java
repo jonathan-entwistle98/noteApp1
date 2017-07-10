@@ -389,6 +389,7 @@ public class MainLoggedInController implements Initializable {
 		jsonFile += jsonScanner.nextLine();
 		jsonScanner.close();
 		
+		
 		JsonParser parser = new JsonParser();
 		JsonElement element = parser.parse(jsonFile.toString());
 		JsonObject o = parser.parse(jsonFile.toString()).getAsJsonObject();
