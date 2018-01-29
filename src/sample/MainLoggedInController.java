@@ -97,7 +97,7 @@ public class MainLoggedInController implements Initializable {
 	
 	private String userLoggedIn;
 
-	private String txtFileName = "noteSave.txt";
+	private final String txtFileName = "noteSave.txt";
 
 	/**
 	 * Initialization class (like a constructor)
@@ -516,10 +516,13 @@ public class MainLoggedInController implements Initializable {
 		try {
 			jsonScanner2 = new Scanner(new FileReader(txtFileName));
 		} catch (FileNotFoundException e) {
+			System.out.println("scanner still null");
 			e.printStackTrace();
 		}
 		String jsonFile2 = "";
-		jsonFile2 += jsonScanner2.nextLine();
+		if(jsonScanner2.hasNextLine()) {
+			jsonFile2 += jsonScanner2.nextLine();
+		}
 		jsonScanner2.close();			
 		System.out.println("the json string is " + jsonFile2);
 		//Checks if the username is already in the json, if it is, do nothing and the else code below is not called.
