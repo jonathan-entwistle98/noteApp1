@@ -21,6 +21,8 @@ import javafx.stage.Stage;
 
 public class LoggedOutController {
 
+	private MainModel mainModel = new MainModel();
+	
 	@FXML
 	private Button logInButton;
 
@@ -62,6 +64,9 @@ public class LoggedOutController {
 
 	@FXML
 	private Label footerText;
+	
+	@FXML
+	private Button mvcButton;
 
 	public void initialize() {
 		DigitalClock clock1 = new DigitalClock();
@@ -79,24 +84,16 @@ public class LoggedOutController {
 			alert1.setContentText("Please Enter a Value Into the Username Field and Try Again.");
 			alert1.showAndWait();
 		} else {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("loggedInSample.fxml"));
-			MainLoggedInController mainLoggedInController = new MainLoggedInController();
-			mainLoggedInController.setUserData(userName);
-			loader.setController(mainLoggedInController);// Not sure about this
-															// line
-			Scene scene = logInButton.getScene();
-			try {
-				Parent pane = loader.load();
-				Scene loggedInScene = new Scene(pane, scene.getWidth(), scene.getHeight());
-				loggedInScene.getStylesheets().add("resource/test.css");
-				Stage loggedInStage = (Stage) scene.getWindow();
-				loggedInStage.setScene(loggedInScene);
-				loggedInStage.show();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			
+			mainModel.logInStatusChange(userName, logInButton);
 
 		}
+	}
+	
+	public void mvcButtonPressed(ActionEvent event) throws IOException {
+	
+		System.out.println("MVC Button Pressed");
+		
 	}
 
 }
